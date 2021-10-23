@@ -20,13 +20,13 @@ class ProfileViewController: UIViewController {
 
         let query = PFQuery(className: "Posts")
         if user != nil {
-            query.whereKey("author", equalTo: user!.username!)
+            query.whereKey("author", equalTo: user!)
             query.findObjectsInBackground { (objects: [PFObject]?, error: Error?) in
                 if let error = error {
                     // Log details of the failure
                     print(error.localizedDescription)
-                } else if let objects = objects {
-                    self.totalPosts.text = String(objects.count)
+                } else if objects != nil {
+                    self.totalPosts.text = String(objects!.count)
                 }
             }
         }

@@ -61,7 +61,7 @@ class AddPictureViewController: UIViewController, UIImagePickerControllerDelegat
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         let image = info[.editedImage] as! UIImage
         
-        let size = CGSize(width: 300, height: 800)
+        let size = CGSize(width: 300, height: 400)
         let scaledImage = image.af.imageScaled(to: size)
         
         imageField.image = scaledImage
@@ -69,6 +69,6 @@ class AddPictureViewController: UIViewController, UIImagePickerControllerDelegat
     }
     
     @IBAction func onCancel(_ sender: Any) {
-        self.dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: nil)
     }
 }

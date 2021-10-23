@@ -23,7 +23,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         tableView.dataSource = self
         
         tableView.rowHeight = UITableView.automaticDimension
-        loadPosts()
+//        loadPosts()
         refresh.addTarget(self, action: #selector(loadPosts), for: .valueChanged)
         tableView.refreshControl = refresh
     }
@@ -34,18 +34,24 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     @objc func loadPosts(){
-        postLimit = 20
+        postLimit = 10
         
+        let user = PFUser.current()
         let query = PFQuery(className: "Posts")
         query.includeKey("author")
         query.limit = postLimit
-        query.findObjectsInBackground { (posts, error) in
-            if posts != nil {
-                self.posts = posts!
-                self.tableView.reloadData()
-            }
-            else{
-                print("\(String(describing: error?.localizedDescription))")
+        
+        print(user!)
+        if user != nil {
+            query.whereKey("author", equalTo: user!)
+            query.findObjectsInBackground { (posts: [PFObject]?, error: Error?) in
+                if let error = error {
+                    // Log details of the failure
+                    print(error.localizedDescription)
+                } else if posts != nil {
+                    self.posts = posts!
+                    self.tableView.reloadData()
+                }
             }
         }
     }
@@ -53,20 +59,24 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     func loadMorePosts(){
         postLimit = postLimit + 20
         
+        let user = PFUser.current()
         let query = PFQuery(className: "Posts")
         query.includeKey("author")
         query.limit = postLimit
-        query.findObjectsInBackground { (posts, error) in
-            
-            self.posts.removeAll()
-            if posts != nil {
-                for post in posts! {
-                    self.posts.append(post)
+        
+        if user != nil {
+            query.whereKey("author", equalTo: user!)
+            query.findObjectsInBackground { (posts: [PFObject]?, error: Error?) in
+                if let error = error {
+                    // Log details of the failure
+                    print(error.localizedDescription)
+                } else if posts != nil {
+                    self.posts.removeAll()
+                    for post in posts! {
+                        self.posts.append(post)
+                    }
+                    self.tableView.reloadData()
                 }
-                self.tableView.reloadData()
-            }
-            else{
-                print("\(String(describing: error?.localizedDescription))")
             }
         }
     }
@@ -82,7 +92,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PosterCell") as! PosterCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PosterCell", for: indexPath) as! PosterCell
         
         let post = posts[indexPath.row]
         
